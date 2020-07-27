@@ -1,0 +1,20 @@
+ypaSpace:
+  title: 乌拉空间
+  description: Hadoop 实训
+
+server:
+  #配置服务器启动端口
+  port: 8083
+  #配置访问的上下文路径，就是localhost:8083后面需要的上下文路径
+  servlet:
+    context-path: /dev-api
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://192.168.43.180:26000/ypaspace_og
+    username: og
+    password: og#201014
+
+hdfs:
+  path: 192.168.43.128:9000
