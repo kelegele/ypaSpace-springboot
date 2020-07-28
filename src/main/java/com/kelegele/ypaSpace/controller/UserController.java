@@ -1,7 +1,7 @@
 package com.kelegele.ypaSpace.controller;
 
-import com.kelegele.ypaSpace.model.JsonResult;
-import com.kelegele.ypaSpace.model.User;
+import com.kelegele.ypaSpace.entity.JsonResult;
+import com.kelegele.ypaSpace.entity.User;
 import com.kelegele.ypaSpace.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

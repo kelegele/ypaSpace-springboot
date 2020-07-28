@@ -1,6 +1,6 @@
 package com.kelegele.ypaSpace.mapper;
 
-import com.kelegele.ypaSpace.model.User;
+import com.kelegele.ypaSpace.entity.User;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;

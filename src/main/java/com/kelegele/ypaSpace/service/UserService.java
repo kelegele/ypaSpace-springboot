@@ -1,7 +1,7 @@
 package com.kelegele.ypaSpace.service;
 
-import com.kelegele.ypaSpace.model.JsonResult;
-import com.kelegele.ypaSpace.model.User;
+import com.kelegele.ypaSpace.entity.JsonResult;
+import com.kelegele.ypaSpace.entity.User;
 
 import java.util.HashMap;
 import java.util.List;

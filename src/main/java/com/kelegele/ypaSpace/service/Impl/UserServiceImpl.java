@@ -1,8 +1,8 @@
 package com.kelegele.ypaSpace.service.Impl;
 
 import com.kelegele.ypaSpace.mapper.UserMapper;
-import com.kelegele.ypaSpace.model.JsonResult;
-import com.kelegele.ypaSpace.model.User;
+import com.kelegele.ypaSpace.entity.JsonResult;
+import com.kelegele.ypaSpace.entity.User;
 import com.kelegele.ypaSpace.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
