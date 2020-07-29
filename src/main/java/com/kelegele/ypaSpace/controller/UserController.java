@@ -6,7 +6,6 @@ import com.kelegele.ypaSpace.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -22,13 +21,22 @@ public class UserController {
     }
 
     @RequestMapping(value ="/login", method = RequestMethod.POST)
-    public JsonResult<HashMap> UserLogin(@RequestBody User user) {
+    public JsonResult UserLogin(@RequestBody User user) {
         return userService.userLogin(user);
     }
 
-    @RequestMapping(value ="/info", method = RequestMethod.GET)
-    public JsonResult<HashMap> UserInfo(@RequestHeader("X_Token") String token, @RequestParam String name) {
+    @RequestMapping(value ="/logout", method = RequestMethod.GET)
+    public JsonResult UserLogout(@RequestParam("token") String token) {
+        return userService.userLogout(token);
+    }
 
+    @RequestMapping(value ="/register", method = RequestMethod.POST)
+    public JsonResult UserRegister(@RequestBody User user) {
+        return userService.userRegister(user);
+    }
+
+    @RequestMapping(value ="/info", method = RequestMethod.GET)
+    public JsonResult UserInfo(@RequestParam("token") String token) {
         return userService.userInfo(token);
     }
 }

@@ -1,7 +1,9 @@
 package com.kelegele.ypaSpace.config;
 
+import com.kelegele.ypaSpace.config.interceptor.LoginInterceptor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -34,13 +36,20 @@ public class WebConfiguration extends WebMvcConfigurationSupport {
                 .allowCredentials(true).maxAge(3600);
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        //此处配置拦截路径
-//        InterceptorRegistration registration = registry.addInterceptor(new ParamInterceptor());
-//        registration.addPathPatterns("/**");
-//        registration.excludePathPatterns("/dev-api/user/login");
-
-        super.addInterceptors(registry);
+    /**
+     * 这个方法才能在拦截器中自动注入查询数据库的对象
+     */
+    @Bean
+    LoginInterceptor loginInterceptor() {
+        return new LoginInterceptor();
     }
+
+    /**
+     * 配置生成器：添加一个拦截器，拦截路径为login以后的路径
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry ){
+        registry.addInterceptor(loginInterceptor()).addPathPatterns("/**").excludePathPatterns("/file/**","/user/login", "/user/register", "/static");
+    }
+
 }

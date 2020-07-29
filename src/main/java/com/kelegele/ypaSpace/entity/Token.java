@@ -6,10 +6,10 @@ import lombok.Data;
 public class Token {
 
     /* tokenId */
-    private Long id;
+    private String id;
 
     /* 用户ID */
-    private Long userId;
+    private String userId;
 
     /* 刷新时间 */
     private int buildTime;
@@ -17,19 +17,19 @@ public class Token {
     /* token */
     private String token;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

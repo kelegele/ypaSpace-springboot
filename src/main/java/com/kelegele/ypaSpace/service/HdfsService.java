@@ -29,6 +29,24 @@ public class HdfsService {
     private static String hdfsName;
     private static final int bufferSize = 1024 * 1024 * 64;
 
+    @PostConstruct
+    public void getPath() {
+        hdfsPath = this.path;
+    }
+
+    @PostConstruct
+    public void getName() {
+        hdfsName = this.username;
+    }
+
+    public static String getHdfsPath() {
+        return hdfsPath;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
     /**
      * 获取HDFS配置信息
      * @return
@@ -112,6 +130,7 @@ public class HdfsService {
                 Map<String, Object> map = new HashMap<>();
                 map.put("filePath", fileStatus.getPath());
                 map.put("fileStatus", fileStatus.toString());
+                map.put("fileType",fileStatus.isFile()?"file":"dir");
                 list.add(map);
             }
             return list;
@@ -380,23 +399,5 @@ public class HdfsService {
         Path srcPath = new Path(path);
         FileStatus fileStatus = fs.getFileStatus(srcPath);
         return fs.getFileBlockLocations(fileStatus, 0, fileStatus.getLen());
-    }
-
-    @PostConstruct
-    public void getPath() {
-        hdfsPath = this.path;
-    }
-
-    @PostConstruct
-    public void getName() {
-        hdfsName = this.username;
-    }
-
-    public static String getHdfsPath() {
-        return hdfsPath;
-    }
-
-    public String getUsername() {
-        return username;
     }
 }

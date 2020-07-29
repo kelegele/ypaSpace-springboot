@@ -7,7 +7,7 @@ server:
   port: 8083
   #配置访问的上下文路径，就是localhost:8083后面需要的上下文路径
   servlet:
-    context-path: /dev-api
+    context-path: /api
 
 spring:
   datasource:
@@ -18,5 +18,7 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
 
 hdfs:
-  path: hdfs://192.168.43.128:9000
+  path: hdfs://192.168.43.128:9000/ypaSpace
   username: root
+  # 存储位置 /ypaSpace/<userid>
+  userpath: /ypaSpace/
