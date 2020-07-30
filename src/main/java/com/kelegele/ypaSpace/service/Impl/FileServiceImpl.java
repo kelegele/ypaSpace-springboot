@@ -11,8 +11,13 @@ import org.apache.hadoop.fs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +38,6 @@ public class FileServiceImpl implements FileService {
     public void getPath() {
         userPath = this.path;
     }
-
 
     @Override
     public JsonResult listFiles(String path,String token) {
@@ -101,5 +105,105 @@ public class FileServiceImpl implements FileService {
         data.put("currentPaths",currentPaths);
         data.put("currentDir",currentDir);
         return JsonResult.success(data);
+    }
+
+    @Override
+    public JsonResult mkdirByPath(String path, String token) {
+
+        String userId = UserUtil.getUserIdByToken(token);
+
+        try {
+            boolean isOk = HdfsService.mkdir(userPath + userId + path);
+
+            if (isOk){
+                return JsonResult.success("创建成功！"+ path);
+            }else {
+                return JsonResult.failed("无效路径或文件已存在！"+ path);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return JsonResult.failed(e.getMessage());
+        }
+    }
+
+    @Override
+    public JsonResult existFile(String path, String token) {
+
+        String userId = UserUtil.getUserIdByToken(token);
+
+        try {
+            boolean exis = HdfsService.existFile(userPath + userId + path);
+
+            if (exis){
+                return JsonResult.success(exis,"已存在路径");
+            }else {
+                return JsonResult.success(exis,"不存在路径");
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return JsonResult.failed(e.getMessage());
+        }
+    }
+
+    @Override
+    public JsonResult deleteFile(String path, String token) {
+
+        String userId = UserUtil.getUserIdByToken(token);
+
+        try {
+            boolean isOk = HdfsService.deleteFile(userPath + userId + path);
+
+            if (isOk){
+                return JsonResult.success(isOk,"删除成功");
+            }else {
+                return JsonResult.success(isOk,"删除失败");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return JsonResult.failed(e.getMessage());
+        }
+    }
+
+    @Override
+    public JsonResult createFile(MultipartFile file, String path, String token) {
+
+        String userId = UserUtil.getUserIdByToken(token);
+
+        try {
+            HdfsService.createFile(userPath + userId + path,file);
+
+            return JsonResult.success(path,"上传成功！");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return JsonResult.failed(e.getMessage());
+        }
+
+    }
+
+    @Override
+    public JsonResult getFile(String path, String token) {
+
+        String userId = UserUtil.getUserIdByToken(token);
+
+        String [] paths = path.split("/");
+        String fileName = paths[paths.length - 1];
+
+        File file = new File(fileName);
+
+        try {
+            byte [] fileBytes = HdfsService.openFileToBytes(userPath + userId + path);
+
+            OutputStream output = new FileOutputStream(file);
+            BufferedOutputStream bufferedOutput = new BufferedOutputStream(output);
+            bufferedOutput.write(fileBytes);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        return null;
     }
 }

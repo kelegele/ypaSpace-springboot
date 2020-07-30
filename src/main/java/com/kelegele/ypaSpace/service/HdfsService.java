@@ -345,24 +345,29 @@ public class HdfsService {
      * @return
      * @throws Exception
      */
-//    public static byte[] openFileToBytes(String path) throws Exception {
-//
-//        if (StringUtils.isEmpty(path)) {
-//            return null;
-//        }
-//        if (!existFile(path)) {
-//            return null;
-//        }
-//        FileSystem fs = getFileSystem();
-//        // 目标路径
-//        Path srcPath = new Path(path);
-//        try {
-//            FSDataInputStream inputStream = fs.open(srcPath);
-//            //return IOUtils.readFullyToByteArray(inputStream);
-//        } finally {
-//            fs.close();
-//        }
-//    }
+    public static byte[] openFileToBytes(String path) throws Exception {
+
+        byte [] bytes = new byte[bufferSize];
+
+        if (StringUtils.isEmpty(path)) {
+            return null;
+        }
+        if (!existFile(path)) {
+            return null;
+        }
+        FileSystem fs = getFileSystem();
+        // 目标路径
+        Path srcPath = new Path(path);
+        try {
+            FSDataInputStream inputStream = fs.open(srcPath);
+            inputStream.read(bytes);
+            //IOUtils.readFully(inputStream,bytes,0,-1);
+            //return IOUtils.readFullyToByteArray(inputStream);
+            return bytes;
+        } finally {
+            fs.close();
+        }
+    }
 
     /**
      * 打开HDFS上的文件并返回java对象
