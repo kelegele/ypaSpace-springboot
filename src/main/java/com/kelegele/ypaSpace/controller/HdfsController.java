@@ -13,6 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * just for test
+ */
 @RestController
 @RequestMapping("/hadoop/hdfs")
 public class HdfsController {

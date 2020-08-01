@@ -1,7 +1,6 @@
 package com.kelegele.ypaSpace;
 
 import com.kelegele.ypaSpace.service.FileService;
-import com.kelegele.ypaSpace.service.HdfsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,9 +14,8 @@ class YpaSpaceApplicationTests {
 	@Test
 	void contextLoads() {
 
-        byte [] bytes = null;
         try {
-            bytes = HdfsService.openFileToBytes("/test/DSTTest.txt");
+//            fileService.getFile("/test/DSTTest.txt","token");
 
         } catch (Exception e) {
             e.printStackTrace();

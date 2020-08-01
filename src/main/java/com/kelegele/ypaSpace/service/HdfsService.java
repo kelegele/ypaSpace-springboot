@@ -1,6 +1,7 @@
 package com.kelegele.ypaSpace.service;
 
 import com.alibaba.druid.util.StringUtils;
+import com.kelegele.ypaSpace.utils.FileUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.IOUtils;
@@ -347,7 +348,6 @@ public class HdfsService {
      */
     public static byte[] openFileToBytes(String path) throws Exception {
 
-        byte [] bytes = new byte[bufferSize];
 
         if (StringUtils.isEmpty(path)) {
             return null;
@@ -360,10 +360,7 @@ public class HdfsService {
         Path srcPath = new Path(path);
         try {
             FSDataInputStream inputStream = fs.open(srcPath);
-            inputStream.read(bytes);
-            //IOUtils.readFully(inputStream,bytes,0,-1);
-            //return IOUtils.readFullyToByteArray(inputStream);
-            return bytes;
+            return FileUtil.readFullyToByteArray(inputStream);
         } finally {
             fs.close();
         }

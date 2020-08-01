@@ -13,11 +13,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.PostConstruct;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,9 +40,9 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public JsonResult listFiles(String path,String token) {
+    public JsonResult listFiles(String path, String token) {
 
-        HashMap<String,Object> data = new HashMap<>();
+        HashMap<String, Object> data = new HashMap<>();
 
         String userId = UserUtil.getUserIdByToken(token);
         // TODO TEST
@@ -52,30 +52,30 @@ public class FileServiceImpl implements FileService {
 
         List<Map<String, Object>> dirInfo = null;
         try {
-            dirInfo = HdfsService.readPathInfo(userPath + userId + path );
+            dirInfo = HdfsService.readPathInfo(userPath + userId + path);
 
-            String [] paths = StringUtils.splitPreserveAllTokens(String.valueOf(path)  ,"/") ;
+            String[] paths = StringUtils.splitPreserveAllTokens(String.valueOf(path), "/");
 
-            for (int i = 0;i< paths.length;i++) {
-                if (0 != paths[i].length() ){
+            for (int i = 0; i < paths.length; i++) {
+                if (0 != paths[i].length()) {
                     HashMap<String, String> map = new HashMap<>();
-                    map.put("index",String.valueOf(i));
-                    map.put("path",paths[i]);
+                    map.put("index", String.valueOf(i));
+                    map.put("path", paths[i]);
                     currentPaths.add(map);
                 }
             }
 
-            if (null == dirInfo){
-                data.put("currentPaths",currentPaths);
-                data.put("currentDir",currentDir);
+            if (null == dirInfo) {
+                data.put("currentPaths", currentPaths);
+                data.put("currentDir", currentDir);
                 return JsonResult.success(data);
             }
 
-            for (Map<String, Object> file: dirInfo) {
+            for (Map<String, Object> file : dirInfo) {
 
                 Path filePath = (Path) file.get("filePath");
 
-                String [] pathArr = StringUtils.splitPreserveAllTokens(String.valueOf(filePath)  ,"/") ;
+                String[] pathArr = StringUtils.splitPreserveAllTokens(String.valueOf(filePath), "/");
 
                 HdfsFile hdfsFile = new HdfsFile();
                 hdfsFile.setFileName(pathArr[pathArr.length - 1]);
@@ -85,9 +85,9 @@ public class FileServiceImpl implements FileService {
                 String pp = "/";
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append(pp);
-                for (int i = 5;i< pathArr.length;i++){
+                for (int i = 5; i < pathArr.length; i++) {
                     stringBuilder.append(pathArr[i]);
-                    if (i != (pathArr.length - 1)){
+                    if (i != (pathArr.length - 1)) {
                         stringBuilder.append("/");
                     }
                 }
@@ -102,8 +102,8 @@ public class FileServiceImpl implements FileService {
             return JsonResult.failed(e.getMessage());
         }
 
-        data.put("currentPaths",currentPaths);
-        data.put("currentDir",currentDir);
+        data.put("currentPaths", currentPaths);
+        data.put("currentDir", currentDir);
         return JsonResult.success(data);
     }
 
@@ -115,10 +115,10 @@ public class FileServiceImpl implements FileService {
         try {
             boolean isOk = HdfsService.mkdir(userPath + userId + path);
 
-            if (isOk){
-                return JsonResult.success("创建成功！"+ path);
-            }else {
-                return JsonResult.failed("无效路径或文件已存在！"+ path);
+            if (isOk) {
+                return JsonResult.success("创建成功！" + path);
+            } else {
+                return JsonResult.failed("无效路径或文件已存在！" + path);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,10 +134,10 @@ public class FileServiceImpl implements FileService {
         try {
             boolean exis = HdfsService.existFile(userPath + userId + path);
 
-            if (exis){
-                return JsonResult.success(exis,"已存在路径");
-            }else {
-                return JsonResult.success(exis,"不存在路径");
+            if (exis) {
+                return JsonResult.success(exis, "已存在路径");
+            } else {
+                return JsonResult.success(exis, "不存在路径");
 
             }
         } catch (Exception e) {
@@ -154,10 +154,10 @@ public class FileServiceImpl implements FileService {
         try {
             boolean isOk = HdfsService.deleteFile(userPath + userId + path);
 
-            if (isOk){
-                return JsonResult.success(isOk,"删除成功");
-            }else {
-                return JsonResult.success(isOk,"删除失败");
+            if (isOk) {
+                return JsonResult.success(isOk, "删除成功");
+            } else {
+                return JsonResult.success(isOk, "删除失败");
             }
 
         } catch (Exception e) {
@@ -172,9 +172,9 @@ public class FileServiceImpl implements FileService {
         String userId = UserUtil.getUserIdByToken(token);
 
         try {
-            HdfsService.createFile(userPath + userId + path,file);
+            HdfsService.createFile(userPath + userId + path, file);
 
-            return JsonResult.success(path,"上传成功！");
+            return JsonResult.success(path, "上传成功！");
         } catch (Exception e) {
             e.printStackTrace();
             return JsonResult.failed(e.getMessage());
@@ -183,27 +183,90 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public JsonResult getFile(String path, String token) {
+    public JsonResult getFile(String path, String token, HttpServletResponse response) {
+
+        byte[] fileBytes = null;
 
         String userId = UserUtil.getUserIdByToken(token);
 
-        String [] paths = path.split("/");
-        String fileName = paths[paths.length - 1];
+        //储存到本地 弃用
+//        FileOutputStream fos = null;
+//        BufferedOutputStream bos = null;
+//        File file = null;
+//        String fileName = System.getProperty("user.dir") + "/temp/" + userId + path;
+//        file = new File(fileName);
+//
+//        try {
+//
+//            if (!file.getParentFile().exists()) {
+//                //上级目录不存在，创建上级目录
+//                file.getParentFile().mkdirs();
+//            }
+//
+//            if (file.exists()) {
+//                //存在，删除
+//                file.delete();
+//            }
+//            file.createNewFile();
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        try {
+//            fileBytes = HdfsService.openFileToBytes(userPath + userId + path);
+//
+//            fos = new FileOutputStream(file);
+//            bos = new BufferedOutputStream(fos);
+//            bos.write(fileBytes);
+//
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }finally{
+//            if (bos != null){
+//                try{
+//                    bos.close();
+//                }catch (IOException e){
+//                    e.printStackTrace();
+//                }
+//            }
+//            if (fos != null){
+//                try{
+//                    fos.close();
+//                }catch (IOException e){
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
 
-        File file = new File(fileName);
+        String[] paths = path.split("/");
+        String filename = paths[paths.length - 1];
+
+        // 设置信息给客户端不解析
+        String type = new MimetypesFileTypeMap().getContentType(filename);
+        // 设置contenttype，即告诉客户端所发送的数据属于什么类型
+        response.setHeader("file-type", type);
+        // 设置编码
+        String decode = null;
+        decode = new String(filename.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        response.setHeader("filename",decode);
+
+        //首先设置响应的内容格式是force-download，那么你一旦点击下载按钮就会自动下载文件了
+        response.setContentType("application/x-download");
+        // 设置扩展头，当Content-Type 的类型为要下载的类型时 , 这个信息头会告诉浏览器这个文件的名字和类型。
+        response.addHeader("Content-Disposition", "attachment");
 
         try {
-            byte [] fileBytes = HdfsService.openFileToBytes(userPath + userId + path);
-
-            OutputStream output = new FileOutputStream(file);
-            BufferedOutputStream bufferedOutput = new BufferedOutputStream(output);
-            bufferedOutput.write(fileBytes);
-
+            // 发送给客户端的数据
+            fileBytes = HdfsService.openFileToBytes(userPath + userId + path);
+            OutputStream outputStream = response.getOutputStream();
+            outputStream.write(fileBytes, 0, fileBytes.length);
+            outputStream.flush();
+            return JsonResult.success("下载成功");
         } catch (Exception e) {
             e.printStackTrace();
+            return JsonResult.failed(e.getMessage());
         }
-
-
-        return null;
     }
 }

@@ -49,7 +49,7 @@ public class WebConfiguration extends WebMvcConfigurationSupport {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry ){
-        registry.addInterceptor(loginInterceptor()).addPathPatterns("/**").excludePathPatterns("/file/**","/user/login", "/user/register", "/static");
+        registry.addInterceptor(loginInterceptor()).addPathPatterns("/**").excludePathPatterns("/file/","/user/login", "/user/register", "/static");
     }
 
 }
